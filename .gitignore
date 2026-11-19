@@ -1,0 +1,31 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node / tooling (if any apps grow build steps)
+node_modules/
+.pnpm-store/
+package-lock.json
+yarn.lock
+
+# Tauri / Rust (when wrappers are added)
+target/
+src-tauri/target/
+
+# Build outputs
+dist/
+build/
+*.exe
+*.msi
+*.app
+*.dmg
+
+# Local env
+.env
+.env.local

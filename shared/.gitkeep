@@ -1,0 +1,2 @@
+# Optional shared local libraries, CSS, or assets used by multiple apps
+# Keep everything self-contained (no CDNs)
