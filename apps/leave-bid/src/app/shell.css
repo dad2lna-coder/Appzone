@@ -91,6 +91,9 @@
 .pill { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 600; }
 .pill-info { background: var(--primary-soft); color: var(--primary); }
 .pill-warn { background: var(--warn-soft); color: var(--warn); }
+.pill-success { background: var(--success-soft); color: var(--success); }
+.center { text-align: center; }
+.inline-label { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 600; }
 .placeholder { color: var(--text-muted); font-size: 14px; padding: 12px 0; }
 .file-btn { position: relative; overflow: hidden; }
 .file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }

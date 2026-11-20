@@ -23,3 +23,5 @@
 .table tr:nth-child(even) td { background: #fafbfc; }
 .table tr:hover td { background: #eff6ff; }
 .num { text-align: right; font-variant-numeric: tabular-nums; }
+.center { text-align: center; }
+.table .center { text-align: center; }

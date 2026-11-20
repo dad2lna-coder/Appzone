@@ -1,6 +1,18 @@
+import { computeWorkgroupAllocations } from "../domain/allocation";
 import { isTwoStageCategory } from "../domain/accrual";
 import { computeEmployeeLiabilityRow, computeLiabilityRollup } from "../domain/liability";
-import { getAllKnownAirports, normalizeAirportCode } from "../domain/pools";
+import { computeLeaveList364, type LeaveListRow } from "../domain/leaveList";
+import { getActiveDailyForecasts, getAllKnownAirports, getAllKnownRoles, normalizeAirportCode } from "../domain/pools";
+import { computeRankedBidEmployees } from "../domain/ranking";
+import {
+  computeResultsFcfsSummary,
+  computeResultsGroupSummary,
+  computeResultsParticipantRows,
+  type ResultsFcfsRow,
+  type ResultsGroupRow,
+  type ResultsParticipantRow,
+} from "../domain/results";
+import { cloneDeep, withAirportScope } from "../domain/scope";
 import type { AllocConfig, LiabilityEmployee, LiabilityParams, LiabilityRollup, LiabilityRow, State } from "../domain/types";
 
 export interface LiabilityTableRow {
@@ -39,6 +51,8 @@ export interface LiabilitySelectorInput {
 
 const airportCache = new Map<string, string[]>();
 const cache = new Map<string, LiabilityView>();
+const resultsCache = new Map<string, ResultsView>();
+const leaveListCache = new Map<string, LeaveListView>();
 
 /** Stable airport list for useSyncExternalStore. A fresh array each call loops React. */
 export function selectKnownAirports(state: State): string[] {
@@ -134,5 +148,78 @@ export function selectLiabilityView(input: LiabilitySelectorInput): LiabilityVie
     },
   };
   cache.set(key, view);
+  return view;
+}
+
+export interface ResultsView {
+  airport: string;
+  groups: ResultsGroupRow[];
+  fcfs: ResultsFcfsRow[];
+  participants: ResultsParticipantRow[];
+}
+
+export interface LeaveListView {
+  roleFilter: string;
+  roles: string[];
+  rows: LeaveListRow[];
+}
+
+function scopeActive<T>(state: State, fn: (scoped: State) => T): T {
+  const working = cloneDeep(state);
+  const air = normalizeAirportCode(working.allocConfig?.airport || "DAL");
+  return withAirportScope(working, air, () => fn(working));
+}
+
+function stateKey(state: State): string {
+  return [
+    refId(state.liabilityParams),
+    refId(state.liabilityEmployees),
+    refId(state.bidEmployees),
+    refId(state.poolGrouping),
+    refId(state.allocConfig),
+    refId(state.forecastsByAirport),
+    refId(state.appointmentsConfig),
+    refId(state.airportConfigs),
+    refId(state.knownAirportSlots),
+  ].join("|");
+}
+
+/** renderResultsTab, single airport. Side-by-side comparison is not included. */
+export function selectResultsView(state: State): ResultsView {
+  const key = stateKey(state);
+  const hit = resultsCache.get(key);
+  if (hit) return hit;
+  const view = scopeActive(state, (scoped) => {
+    const { enriched } = computeRankedBidEmployees(scoped);
+    const { wgResults } = computeWorkgroupAllocations(scoped);
+    const airport = scoped.allocConfig.airport;
+    return {
+      airport,
+      groups: computeResultsGroupSummary(enriched, wgResults),
+      fcfs: computeResultsFcfsSummary(enriched),
+      participants: computeResultsParticipantRows(enriched, airport),
+    };
+  });
+  resultsCache.set(key, view);
+  return view;
+}
+
+/** renderCalendar5BTab. roleFilter matches #cal5bRoleFilter and is not persisted. */
+export function selectLeaveListView(state: State, roleFilter: string): LeaveListView {
+  const role = roleFilter || "ALL";
+  const key = `${stateKey(state)}|${role}`;
+  const hit = leaveListCache.get(key);
+  if (hit) return hit;
+  const view = scopeActive(state, (scoped) => ({
+    roleFilter: role,
+    roles: getAllKnownRoles(scoped),
+    rows: computeLeaveList364({
+      startDate: scoped.liabilityParams.startDate,
+      forecast: getActiveDailyForecasts(scoped),
+      bidEmployees: scoped.bidEmployees,
+      roleFilter: role,
+    }),
+  }));
+  leaveListCache.set(key, view);
   return view;
 }

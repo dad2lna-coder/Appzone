@@ -5,6 +5,7 @@ export interface UiState {
   liabilityRoleFilter: string;
   liabilityViewMode: LiabilityViewMode;
   liabilityPtEmpId: number | null;
+  leaveListRoleFilter: string;
   confirmReset: boolean;
 }
 
@@ -13,5 +14,6 @@ export const defaultUi: UiState = {
   liabilityRoleFilter: "ALL",
   liabilityViewMode: "summary",
   liabilityPtEmpId: null,
+  leaveListRoleFilter: "ALL",
   confirmReset: false,
 };

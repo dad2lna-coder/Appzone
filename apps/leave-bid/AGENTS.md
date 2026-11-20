@@ -8,10 +8,10 @@ React shell over the pure engine extracted from `apps/example-app/LeaveBid.html`
 - `src/domain/` — pure functions. No DOM, no store, no `localStorage`.
 - `src/store/` — Zustand persist on `CBA_LEAVE_SUITE_2027_STATE_V3` (version 4). `migrate.ts` accepts a raw V3 blob. The storage adapter writes that raw object back so LeaveBid.html can read it. `file://` and `http://` do not share localStorage; use Import backup JSON across origins.
 - `src/store/actions/` — the only place that writes state. One file per slice.
-- `src/store/selectors.ts` — derived liability rows and KPIs.
+- `src/store/selectors.ts` — derived liability, results, and 364-day leave-list views.
 - `src/app/` — header, tab nav, `tabs.ts` registry.
 - `src/features/<tab>/` — one folder per ported tab.
-- `src/shared/ui/` — dumb widgets. `src/io/xlsx.ts` is the only SheetJS import.
+- `src/shared/ui/` — dumb widgets. `src/io/xlsx.ts` is the only SheetJS import. `src/io/csv.ts` writes CSV text and downloads it. Tab exporters live in `src/io/exports/`.
 - `apps/example-app/LeaveBid.html` — reference. Do not edit it from here.
 
 ## Feature recipe
