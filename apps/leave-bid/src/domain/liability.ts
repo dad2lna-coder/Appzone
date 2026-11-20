@@ -3,6 +3,7 @@ import { isTwoStageCategory, getScdAccrualRateOnDate } from "./accrual";
 import { normalizeAirportCode } from "./pools";
 import type {
   AllocConfig,
+  BidEmployee,
   LiabilityEmployee,
   LiabilityParams,
   LiabilityRollup,
@@ -182,3 +183,31 @@ export function computeLiabilityRollup(
     totalDatSlotsCeil: Math.ceil(sumDaysLiab - 1e-9),
   };
 }
+
+/** Maps the liability roster onto bid employees the way syncLiabilityToBidTool does. */
+export function syncLiabilityEmployeesToBid(
+  employees: LiabilityEmployee[],
+  airportFallback: string,
+  rand: () => number = () => Math.floor(100000 + Math.random() * 900000),
+): BidEmployee[] {
+  return employees.map((e, idx) => ({
+    id: `Employee ${String(idx + 1).padStart(4, "0")}`,
+    name: e.name,
+    airport: e.airport || airportFallback || "CRP",
+    eod: e.eod,
+    scd: e.scd,
+    rand: rand(),
+    leaveGroup: e.group || "TSO",
+    fcfsGroup: "Shift A",
+    hoursPP: e.hoursPerPP,
+    daysPP: e.daysPerPP >= 8 ? Math.round(e.daysPerPP / 2) : e.daysPerPP,
+    notes: "",
+    useProxy: "No",
+    proxyWeeks: "1, 2, 3",
+    proxyDays: "2027-01-16",
+    selectedWeeks: [],
+    selectedDays: [],
+    bidTimestamp: "",
+  }));
+}
+
