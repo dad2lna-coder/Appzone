@@ -1,20 +1,24 @@
 # leave-bid
 
-Typed engine extracted from `apps/example-app/LeaveBid.html`. No UI.
+React shell over the pure engine extracted from `apps/example-app/LeaveBid.html`.
 
 ## Map
 
-- `src/data/` — JSON seed copied from `getDefaultState()` and the constants block. `index.ts` reassembles `getDefaultState()`.
-- `src/domain/types.ts` — the contract. Uncertain fields are optional.
-- `src/domain/*.ts` — pure functions. Inputs are arguments, not a `STATE` global. No DOM, no `localStorage`.
-- `src/domain/__tests__/` — Vitest. Snapshot parity vs `apps/example-app/baseline/snapshots`.
+- `src/data/` — JSON seed. `getDefaultState()` reassembles it.
+- `src/domain/` — pure functions. No DOM, no store, no `localStorage`.
+- `src/store/` — Zustand persist on `CBA_LEAVE_SUITE_2027_STATE_V3` (version 4). `migrate.ts` accepts a raw V3 blob. The storage adapter writes that raw object back so LeaveBid.html can read it. `file://` and `http://` do not share localStorage; use Import backup JSON across origins.
+- `src/store/actions/` — the only place that writes state. One file per slice.
+- `src/store/selectors.ts` — derived liability rows and KPIs.
+- `src/app/` — header, tab nav, `tabs.ts` registry.
+- `src/features/<tab>/` — one folder per ported tab.
+- `src/shared/ui/` — dumb widgets. `src/io/xlsx.ts` is the only SheetJS import.
+- `apps/example-app/LeaveBid.html` — reference. Do not edit it from here.
 
-## Rules
+## Feature recipe
 
-- Domain stays pure. Rendering stays in `LeaveBid.html` until a later React phase.
-- Data stays JSON. Do not invent roster rows; the P1 synthetic roster is the only employee data.
-- `types.ts` is the contract. No `any`.
-- Keep each file at or under 300 lines. Split by sub-concern instead of growing a file.
-- `apps/example-app/LeaveBid.html` is the reference implementation. Do not change it from this folder.
-- Baseline snapshots are the source of truth. If a port must differ to drop DOM, it still has to match the snapshots. Note oddities in the PR; do not "fix" them here.
-- Runtime dependencies: none. Dev dependencies: `typescript`, `vitest`.
+1. Add `src/features/<name>/` with a tab component split so every file stays ≤200 lines.
+2. Register one line in `src/app/tabs.ts` (`id`, label, lazy component).
+3. Put math in `domain/`. Do not change existing domain signatures; add a function instead.
+4. Put state changes in `src/store/actions/<slice>.ts`. Components call actions; they do not set state.
+5. Match the tab with the same id in `LeaveBid.html`. Read the P1 snapshots before calling a behavior difference a fix.
+6. Keep `npm test`, `npm run typecheck`, and `npm run build` green. `base` stays `"./"` so `dist/` opens from `file://`.
