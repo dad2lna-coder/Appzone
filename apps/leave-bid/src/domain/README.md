@@ -1,0 +1,12 @@
+- `types.ts` — state contract; re-exports return shapes from `result-types.ts`.
+- `result-types.ts` — calendar, ranking, allocation, appointment, and rollup results.
+- `dates.ts` — UTC date/time helpers, DOW/MONTH names, 52-week calendar grid.
+- `accrual.ts` — SCD accrual rate, CBA bid-line caps, CAT III/IV two-stage check.
+- `liability.ts` — per-officer liability row and the group rollup extracted from the liability tab.
+- `pools.ts` — airport codes, known airports/roles, effective bid pool, active forecast.
+- `scope.ts` — per-airport config snapshots and `withAirportScope` (no DOM).
+- `ranking.ts` — seniority sort, tie flags, ranked bid employees by pool.
+- `allocation.ts` — workgroup slot math, isolated airport allocation, allocation recalc.
+- `appointments.ts` — daily bid windows and the appointment schedule.
+- `parse.ts` — delimited roster/forecast text to a string grid.
+- `__tests__/` — snapshot parity against `apps/example-app/baseline/snapshots` plus date edges.
