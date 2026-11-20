@@ -29,3 +29,7 @@ build/
 # Local env
 .env
 .env.local
+
+# Baseline harness install (Leave Bid golden snapshots)
+apps/example-app/baseline/node_modules
+
