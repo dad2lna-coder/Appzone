@@ -35,3 +35,6 @@ build/
 # Baseline harness install (Leave Bid golden snapshots)
 apps/example-app/baseline/node_modules
 
+
+# GitHub Pages local/CI output
+_site/
