@@ -1,22 +1,33 @@
 # Memorandum Builder
 
-Open `index.html`. There is no install and no build step.
+Modular Svelte app. There is no install and no build step. The browser compiles the `.svelte` files with the Svelte 5 compiler from `https://esm.sh/svelte@5.59.1`.
 
-The page loads local scripts in `js/` and local copies of pdf-lib and JSZip in `vendor/`. It does not call a CDN. Office data, templates, logos, and generated files stay in this browser’s local storage.
+pdf-lib and JSZip are local copies in `vendor/`. Office data stays in this browser.
 
-## What you can do
+## Open it
 
-- Create a memorandum from a template in guided or full-edit mode
-- Import a Word `.docx`, mark phrases as `{{fieldId}}` placeholders, and keep version history
-- Generate a DOCX and a PDF. The PDF includes an empty Acrobat signature field
-- Load the built-in sample batch or import batch JSON
-- Change the logo, office name, and region, then export or import a zip package
+`file://` cannot fetch the component files. Serve the folder, then open the address:
 
-Sample files are in `samples/`. The Load sample batch button does not need those files, so the page still works when opened directly from the folder.
+```bash
+cd apps/memorandum-builder
+python3 -m http.server 8080
+```
+
+Any static server works. The first load needs network access so esm.sh can deliver Svelte.
+
+## Layout
+
+- `index.html` — entry
+- `boot.js` — loads each `.svelte` file, compiles it, and mounts `src/App.svelte`
+- `src/` — Svelte components (shell, wizard, templates, batch, branding, archive)
+- `js/` — memorandum services: tokens, Word package editing, PDF signature field, storage
+- `css/app.css` — layout
+- `assets/` — sidebar art and mark
+- `samples/` — batch JSON
 
 ## Limits
 
 - Clearing site data deletes the office unless you export a package first.
-- The signature field is unsigned. Signing it with a PIV card was not verified here.
-- An imported Word file keeps its own formatting only when generation can replace placeholders inside that package. Otherwise a new document is built from the wording.
-- Very large batches can fill the browser storage quota. Export a package before then.
+- The PDF signature field is empty. Signing it with a PIV card was not verified here.
+- Imported Word formatting is preserved only when placeholders can be replaced inside the original package.
+- The Svelte compiler runs in the browser, so the first view is slower than a prebuilt bundle and needs the CDN.

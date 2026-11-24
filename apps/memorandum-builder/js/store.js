@@ -89,6 +89,10 @@
       state.notice = null;
       emit();
     },
+    note: function (text, tone) {
+      state.notice = { tone: tone || "info", text: text };
+      emit();
+    },
     hydrate: async function () {
       let saved = null;
       try { saved = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (error) { saved = null; }

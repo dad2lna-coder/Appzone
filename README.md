@@ -16,7 +16,7 @@ html-apps/
 │   │   ├── index.html
 │   │   ├── styles.css
 │   │   └── app.js
-│   ├── memorandum-builder/  # Open index.html. No build step.
+│   ├── memorandum-builder/  # Svelte, open via a static server. No build step.
 │   └── your-app-name/
 │       └── ...
 ├── shared/                # Optional shared CSS, JS libs, assets (keep local, no CDN)
