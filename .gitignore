@@ -12,6 +12,8 @@ Thumbs.db
 node_modules/
 .pnpm-store/
 package-lock.json
+!apps/leave-bid/package-lock.json
+!apps/example-app/baseline/package-lock.json
 yarn.lock
 
 # Tauri / Rust (when wrappers are added)
