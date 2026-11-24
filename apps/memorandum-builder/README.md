@@ -1,37 +1,22 @@
 # Memorandum Builder
 
-Office memorandum generator for `html-apps`. Templates, branding, batch JSON, DOCX, and PDF stay in the browser. IndexedDB holds the office package. Nothing is uploaded.
+Open `index.html`. There is no install and no build step.
 
-## Run
+The page loads local scripts in `js/` and local copies of pdf-lib and JSZip in `vendor/`. It does not call a CDN. Office data, templates, logos, and generated files stay in this browser’s local storage.
 
-```bash
-cd apps/memorandum-builder
-npm install
-npm run dev
-```
+## What you can do
 
-Open the URL Vite prints.
+- Create a memorandum from a template in guided or full-edit mode
+- Import a Word `.docx`, mark phrases as `{{fieldId}}` placeholders, and keep version history
+- Generate a DOCX and a PDF. The PDF includes an empty Acrobat signature field
+- Load the built-in sample batch or import batch JSON
+- Change the logo, office name, and region, then export or import a zip package
 
-## Open the built files
-
-```bash
-npm run build
-```
-
-`dist/index.html` uses relative paths (`base: "./"`), same as leave-bid. Serve `dist/` or open it from a local static host. `file://` can block IndexedDB in some browsers; use `npm run preview` if the browser refuses storage.
-
-## What is included
-
-- Dashboard, guided and full-edit memorandum, template designer, Word `.docx` import
-- Original-package token replacement when the Word file contains `{{fieldId}}` placeholders
-- DOCX and PDF download, with an empty Acrobat signature field on the PDF
-- Batch JSON review and selective generation
-- Branding, airports, personnel, archive, office export and import
-
-Sample batch: `public/samples/batch-schedule.json`.
+Sample files are in `samples/`. The Load sample batch button does not need those files, so the page still works when opened directly from the folder.
 
 ## Limits
 
-- The PDF signature widget is unsigned. A PIV signature in Acrobat was not verified.
-- Imported Word formatting is preserved only for placeholder replacement inside the original package. A template with no placeholders is rebuilt from the extracted paragraphs.
 - Clearing site data deletes the office unless you export a package first.
+- The signature field is unsigned. Signing it with a PIV card was not verified here.
+- An imported Word file keeps its own formatting only when generation can replace placeholders inside that package. Otherwise a new document is built from the wording.
+- Very large batches can fill the browser storage quota. Export a package before then.
