@@ -66,10 +66,10 @@ jobs:
             echo '<head>'
             echo '  <meta charset="utf-8">'
             echo '  <meta name="viewport" content="width=device-width, initial-scale=1">'
-            echo '  <title>html-apps test site</title>'
+            echo '  <title>Appzone test site</title>'
             echo '</head>'
             echo '<body>'
-            echo '  <h1>html-apps</h1>'
+            echo '  <h1>Appzone</h1>'
             echo '  <p>One test URL per app under <code>apps/</code>.</p>'
             echo '  <ul>'
             for app_dir in _site/*/; do
