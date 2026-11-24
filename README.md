@@ -16,6 +16,7 @@ html-apps/
 │   │   ├── index.html
 │   │   ├── styles.css
 │   │   └── app.js
+│   ├── memorandum-builder/  # Office memorandum generator (Vite). See its README.
 │   └── your-app-name/
 │       └── ...
 ├── shared/                # Optional shared CSS, JS libs, assets (keep local, no CDN)

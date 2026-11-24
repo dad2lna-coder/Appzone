@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 96" role="img" aria-label="Memorandum Builder logo">
+  <defs>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4db5ff"/>
+      <stop offset="1" stop-color="#0870df"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(5 7)">
+    <path d="M9 13 Q9 6 16 6 H54 L78 30 V73 Q78 80 71 80 H16 Q9 80 9 73Z" fill="#0b315f"/>
+    <path d="M54 6 V25 Q54 30 60 30 H78" fill="#1b548d"/>
+    <path d="M21 40 H64 M21 51 H57 M21 62 H49" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".95"/>
+    <path d="M2 74 C23 56 42 53 67 47 L58 61 C35 66 20 74 2 86Z" fill="url(#blue)"/>
+    <path d="M2 86 C28 73 48 69 75 65 L66 76 C43 79 22 86 2 91Z" fill="#6dc5ff"/>
+  </g>
+  <text x="100" y="43" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27" font-weight="750" letter-spacing="-.6" fill="#0b315f">MEMORANDUM</text>
+  <text x="101" y="70" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21" font-weight="600" letter-spacing="1.6" fill="#2485f3">BUILDER</text>
+</svg>
