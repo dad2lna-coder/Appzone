@@ -1,0 +1,92 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  pages: write
+  id-token: write
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/*/package-lock.json
+
+      - name: Build each app into _site
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          for dir in apps/*; do
+            [ -d "$dir" ] || continue
+            app="$(basename "$dir")"
+            echo "Processing $app"
+            mkdir -p "_site/${app}"
+            if [ -f "$dir/package.json" ] && (cd "$dir" && node -e "const s=require('./package.json').scripts||{}; process.exit(s.build?0:1)"); then
+              (cd "$dir" && npm ci && npm run build)
+              cp -R "$dir/dist/." "_site/${app}/"
+            else
+              # Static app: copy html/css/js/assets and other app files,
+              # skip node_modules, baseline/, tests
+              tar -C "$dir" \
+                --exclude=node_modules \
+                --exclude=baseline \
+                --exclude=tests \
+                -cf - . | tar -C "_site/${app}" -xf -
+            fi
+          done
+
+          if [ -f apps/example-app/LeaveBid.html ]; then
+            mkdir -p _site/example-app
+            cp apps/example-app/LeaveBid.html _site/example-app/LeaveBid.html
+            cp apps/example-app/LeaveBid.html _site/example-app/index.html
+          fi
+
+          {
+            echo '<!doctype html>'
+            echo '<html lang="en">'
+            echo '<head>'
+            echo '  <meta charset="utf-8">'
+            echo '  <meta name="viewport" content="width=device-width, initial-scale=1">'
+            echo '  <title>Appzone test site</title>'
+            echo '</head>'
+            echo '<body>'
+            echo '  <h1>Appzone</h1>'
+            echo '  <p>One test URL per app under <code>apps/</code>.</p>'
+            echo '  <ul>'
+            for app_dir in _site/*/; do
+              [ -d "$app_dir" ] || continue
+              app="$(basename "$app_dir")"
+              echo "    <li><a href=\"${app}/\">${app}</a></li>"
+            done
+            echo '  </ul>'
+            echo '</body>'
+            echo '</html>'
+          } > _site/index.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
