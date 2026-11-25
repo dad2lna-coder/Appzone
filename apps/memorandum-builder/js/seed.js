@@ -9,7 +9,7 @@
       subjectFormat: partial.subjectFormat,
       defaultRecipients: partial.defaultRecipients || "{{officeName}} distribution",
       defaultCc: partial.defaultCc || "",
-      defaultOfficial: partial.defaultOfficial || "per-001",
+      defaultOfficial: partial.defaultOfficial || "",
       body: partial.body,
       fields: partial.fields,
       formatting: partial.formatting || MB.defaultFormatting(),
@@ -48,18 +48,14 @@
         { code: "AUS", name: "Austin-Bergstrom", locations: ["Main Terminal"] },
         { code: "SAT", name: "San Antonio International", locations: ["Terminal A"] },
       ],
-      personnel: [
-        { id: "per-001", name: "Alex Rivera", title: "Operations Manager", email: "alex.rivera@example.invalid" },
-        { id: "per-002", name: "Jordan Hale", title: "Bid Administrator", email: "jordan.hale@example.invalid" },
-        { id: "per-003", name: "Morgan Ellis", title: "Regional Director", email: "morgan.ellis@example.invalid" },
-      ],
+      personnel: [],
       routing: [
         { label: "Through", value: "Station supervision" },
         { label: "Info", value: "Regional bid desk" },
       ],
       defaultRecipients: "Station distribution",
       defaultCc: "Regional operations",
-      issuingOfficialIds: ["per-001", "per-003"],
+      issuingOfficialIds: [],
       terminology: { employee: "employee", station: "airport" },
     };
     const brandingSnapshot = {

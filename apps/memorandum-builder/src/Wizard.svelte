@@ -145,11 +145,18 @@
   <label class="field">CC<input value={values.cc || ""} onchange={(event) => setField("cc", event.currentTarget.value)} /></label>
   <label class="field">
     Issuing official
-    <select value={values.issuingOfficial || ""} onchange={(event) => setField("issuingOfficial", event.currentTarget.value)}>
-      {#each office.config.personnel as person (person.id)}
-        <option value={person.id}>{person.name}</option>
-      {/each}
-    </select>
+    {#if (office.config.personnel || []).length}
+      <select value={values.issuingOfficial || ""} onchange={(event) => setField("issuingOfficial", event.currentTarget.value)}>
+        {#if !(office.config.personnel || []).some((person) => person.id === values.issuingOfficial)}
+          <option value="">Select</option>
+        {/if}
+        {#each office.config.personnel as person (person.id)}
+          <option value={person.id}>{person.name}</option>
+        {/each}
+      </select>
+    {:else}
+      <p class="muted">Add people under Branding & Config to pick a signer.</p>
+    {/if}
   </label>
   <label class="field">Date<input type="date" value={values.memoDate || ""} onchange={(event) => setField("memoDate", event.currentTarget.value)} /></label>
   {#if mode === "full"}
