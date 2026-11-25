@@ -60,6 +60,8 @@ jobs:
             cp apps/example-app/LeaveBid.html _site/example-app/index.html
           fi
 
+          mkdir -p _site/downloads && cp -R downloads/. _site/downloads/
+
           {
             echo '<!doctype html>'
             echo '<html lang="en">'
