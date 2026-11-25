@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Appzone downloads</title>
+  <style>
+    :root { --bg: #0b1026; --text: #e5e7eb; --muted: #94a3b8; --accent: #7c3aed; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; }
+    main { max-width: 760px; margin: 0 auto; padding: 56px 20px; }
+    h1 { font-size: 2rem; margin: 0 0 8px; }
+    .lead { color: var(--muted); margin: 0 0 32px; }
+    .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px; border-top: 4px solid var(--accent); }
+    .card h2 { margin: 0 0 6px; font-size: 1.4rem; }
+    .card p { margin: 0 0 20px; color: var(--muted); }
+    .buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+    .btn { display: inline-block; padding: 12px 20px; border-radius: 10px; font-weight: 600; text-decoration: none; color: #fff; background: var(--accent); }
+    .btn:hover { filter: brightness(1.12); }
+    .btn.secondary { background: transparent; border: 1px solid var(--accent); color: var(--text); }
+    .note { font-size: 0.92rem; }
+    .back { color: #a78bfa; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Appzone downloads</h1>
+    <p class="lead">Desktop builds of Appzone apps.</p>
+    <section class="card">
+      <h2>Memorandum Builder</h2>
+      <p>Create official and courtesy memos with Word, PDF, and CSV export. Runs offline.</p>
+      <div class="buttons">
+        <a class="btn" href="https://github.com/dad2lna-coder/Appzone/releases/download/memorandum-builder-latest/MemorandumBuilder-setup.exe">Download installer</a>
+        <a class="btn secondary" href="https://github.com/dad2lna-coder/Appzone/releases/download/memorandum-builder-latest/MemorandumBuilder.exe">Download portable exe</a>
+      </div>
+      <p class="note">Windows 10 or 11. Uses Microsoft Edge WebView2, already included in Windows. Data is stored on this PC, separate from the web version.</p>
+      <p class="note"><a class="back" href="../memorandum-builder/">Use the web version</a></p>
+    </section>
+  </main>
+</body>
+</html>

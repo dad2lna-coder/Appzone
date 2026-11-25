@@ -1,0 +1,82 @@
+name: Desktop Memorandum Builder
+
+on:
+  push:
+    branches: [main, feat/memo-desktop]
+    paths:
+      - "apps/memorandum-builder/**"
+      - "desktop/memorandum-builder/**"
+      - ".github/workflows/desktop-memorandum-builder.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop-memorandum-builder
+  cancel-in-progress: false
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: desktop/memorandum-builder/package-lock.json
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/memorandum-builder/src-tauri
+
+      - name: Build
+        working-directory: desktop/memorandum-builder
+        run: |
+          npm ci
+          npm run build
+
+      - name: Collect exes
+        working-directory: desktop/memorandum-builder
+        run: |
+          set -euo pipefail
+          mkdir -p ../../out-desktop
+          cp src-tauri/target/release/memorandum-builder.exe ../../out-desktop/MemorandumBuilder.exe
+          shopt -s nullglob
+          installers=(src-tauri/target/release/bundle/nsis/*.exe)
+          if [ "${#installers[@]}" -ne 1 ]; then
+            echo "Expected exactly one NSIS installer, found ${#installers[@]}"; exit 1
+          fi
+          cp "${installers[0]}" ../../out-desktop/MemorandumBuilder-setup.exe
+          ls -la ../../out-desktop
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: memorandum-builder-windows
+          path: |
+            out-desktop/MemorandumBuilder.exe
+            out-desktop/MemorandumBuilder-setup.exe
+
+      - name: Publish to memorandum-builder-latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=memorandum-builder-latest
+          if ! gh release view "$tag" >/dev/null 2>&1; then
+            gh release create "$tag" --title "Memorandum Builder (latest)" --notes "Built from main" --latest=false --target "$GITHUB_SHA"
+          fi
+          gh release upload "$tag" out-desktop/MemorandumBuilder.exe out-desktop/MemorandumBuilder-setup.exe --clobber
+          gh release edit "$tag" --notes "Built from ${GITHUB_SHA::7} on $(date -u +'%Y-%m-%d %H:%M UTC')"
