@@ -474,8 +474,15 @@
         terminology: config.terminology,
       };
       const version = current.config.version + 1;
+      const personnelIds = new Set((snapshot.personnel || []).map(function (person) { return person.id; }));
+      const fallbackOfficial = (snapshot.issuingOfficialIds && snapshot.issuingOfficialIds[0]) || "";
       patchOffice(function (item) {
         return Object.assign({}, item, {
+          templates: item.templates.map(function (template) {
+            if (personnelIds.has(template.defaultOfficial)) return template;
+            if ((template.defaultOfficial || "") === fallbackOfficial) return template;
+            return Object.assign({}, template, { defaultOfficial: fallbackOfficial });
+          }),
           config: Object.assign({}, snapshot, {
             version: version,
             versions: [{ version: version, savedAt: new Date().toISOString(), note: "Configuration saved", snapshot: snapshot }].concat(item.config.versions),

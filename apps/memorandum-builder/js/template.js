@@ -28,6 +28,17 @@
     };
   };
 
+  function findPerson(config, raw) {
+    if (!raw || !config) return null;
+    const people = config.personnel || [];
+    return people.find(function (entry) { return entry.id === raw || entry.name === raw; }) || null;
+  }
+
+  function officialLabel(person) {
+    if (!person || !person.name) return "";
+    return person.title ? person.name + ", " + person.title : person.name;
+  }
+
   function displayValue(field, raw, config) {
     if (!raw) return "";
     if (!field) return raw;
@@ -37,17 +48,15 @@
       if (parts[0] && parts[1]) return MB.formatLongDate(parts[0]) + " – " + MB.formatLongDate(parts[1]);
     }
     if (field.type === "personnel") {
-      const person = config.personnel.find(function (entry) { return entry.id === raw; });
-      if (person) return person.title ? person.name + ", " + person.title : person.name;
+      const person = findPerson(config, raw);
+      if (person) return officialLabel(person);
     }
     return raw;
   }
 
   MB.derivedTokens = function (values, config) {
-    const airport = config.airports.find(function (entry) { return entry.code === values.airport; });
-    const official = config.personnel.find(function (entry) {
-      return entry.id === values.issuingOfficial || entry.name === values.issuingOfficial;
-    });
+    const airport = (config.airports || []).find(function (entry) { return entry.code === values.airport; });
+    const official = findPerson(config, values.issuingOfficial);
     const tokens = {
       officeName: config.officeName,
       region: config.region,
@@ -125,7 +134,7 @@
     const values = {
       recipients: template.defaultRecipients || config.defaultRecipients,
       cc: template.defaultCc || config.defaultCc,
-      issuingOfficial: template.defaultOfficial || config.issuingOfficialIds[0] || "",
+      issuingOfficial: template.defaultOfficial || ((config.issuingOfficialIds || [])[0]) || "",
       memoDate: MB.todayIso(),
     };
     template.fields.forEach(function (field) {
@@ -142,10 +151,12 @@
     template.fields.forEach(function (field) {
       fieldTokens[field.id] = displayValue(field, values[field.id] || "", config);
     });
-    const officialRaw = values.issuingOfficial || template.defaultOfficial;
-    const official = config.personnel.find(function (entry) { return entry.id === officialRaw; });
-    const officialText = official ? (official.title ? official.name + ", " + official.title : official.name) : officialRaw;
-    const baseTokens = Object.assign({}, MB.derivedTokens(values, config), fieldTokens, {
+    let official = findPerson(config, values.issuingOfficial);
+    if (!official) official = findPerson(config, template.defaultOfficial);
+    if (!official) official = findPerson(config, (config.issuingOfficialIds || [])[0]);
+    const officialText = officialLabel(official);
+    const tokenValues = Object.assign({}, values, { issuingOfficial: official ? official.id : "" });
+    const baseTokens = Object.assign({}, MB.derivedTokens(tokenValues, config), fieldTokens, {
       recipients: values.recipients || template.defaultRecipients,
       cc: values.cc || template.defaultCc,
       issuingOfficial: officialText,

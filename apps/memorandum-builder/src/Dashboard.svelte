@@ -10,7 +10,9 @@
     ["/archive", "Archive", "View and restore historical documents"],
   ];
   let person = $derived(
-    office.config.personnel.find((entry) => entry.id === office.config.issuingOfficialIds[0]) || office.config.personnel[0],
+    (office.config.personnel || []).find((entry) => entry.id === (office.config.issuingOfficialIds || [])[0])
+      || (office.config.personnel || [])[0]
+      || null,
   );
   let initials = $derived(
     person ? person.name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase() : "",
