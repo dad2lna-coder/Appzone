@@ -7,6 +7,17 @@ Central repository for standalone offline HTML apps.
 - Refactor, clean up, and modernize them here
 - Later wrap each app **individually** as a Tauri desktop EXE (Windows)
 
+## Online test environment
+
+Every app in `apps/` is auto-deployed to GitHub Pages on push to `main` by `.github/workflows/pages.yml` (no workflow edit needed when adding an app; folder `apps/<name>` appears at `https://dad2lna-coder.github.io/Appzone/<name>/`).
+
+<!-- APP-LINKS:START -->
+- [Appzone index](https://dad2lna-coder.github.io/Appzone/)
+- [Example App](https://dad2lna-coder.github.io/Appzone/example-app/)
+- [Leave Bid](https://dad2lna-coder.github.io/Appzone/leave-bid/)
+- [Memorandum Builder](https://dad2lna-coder.github.io/Appzone/memorandum-builder/)
+<!-- APP-LINKS:END -->
+
 ## Structure
 
 ```
