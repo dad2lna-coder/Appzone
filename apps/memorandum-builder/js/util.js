@@ -86,6 +86,21 @@
     URL.revokeObjectURL(url);
   };
 
+  MB.toCsv = function (rows, columns) {
+    function escapeCell(value) {
+      const text = value == null ? "" : String(value);
+      if (/[",\r\n]/.test(text)) return '"' + text.replace(/"/g, '""') + '"';
+      return text;
+    }
+    const lines = [columns.map(escapeCell).join(",")];
+    (rows || []).forEach(function (row) {
+      lines.push(columns.map(function (column, index) {
+        return escapeCell(Array.isArray(row) ? row[index] : row[column]);
+      }).join(","));
+    });
+    return "\uFEFF" + lines.join("\r\n");
+  };
+
   MB.dataUrlToBytes = function (dataUrl) {
     const comma = String(dataUrl || "").indexOf(",");
     if (comma < 0) return null;

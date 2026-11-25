@@ -1,8 +1,17 @@
 <script>
   let { office } = $props();
   let input;
-  let draft = $derived(MB.store.state.batchDraft);
+  let revision = $state(0);
+  let draft = $derived(revision >= 0 ? MB.store.state.batchDraft : null);
   let template = $derived(draft ? office.templates.find((item) => item.id === draft.templateId) : null);
+  let batchDocs = $derived(revision >= 0 && draft ? MB.store.state.documents.filter((doc) => doc.batchId === draft.batchId) : []);
+
+  $effect(() => {
+    const unsubscribe = MB.store.subscribe(() => {
+      revision += 1;
+    });
+    return unsubscribe;
+  });
 
   function loadParsed(parsed, fileName) {
     if (!parsed.draft) {
@@ -43,6 +52,9 @@
     {/each}
   </div>
   <button class="btn" type="button" onclick={() => MB.store.generateBatch()}>Generate included records</button>
+  {#if batchDocs.length}
+    <button class="btn secondary" type="button" onclick={() => MB.store.exportCsv(batchDocs.map((doc) => doc.documentId))}>Export batch CSV</button>
+  {/if}
 {:else}
   <p>No batch loaded.</p>
 {/if}

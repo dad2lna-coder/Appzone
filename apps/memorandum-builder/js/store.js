@@ -78,6 +78,65 @@
     }
   }
 
+  function findPerson(config, raw) {
+    if (!raw || !config) return null;
+    return (config.personnel || []).find(function (entry) {
+      return entry.id === raw || entry.name === raw;
+    }) || null;
+  }
+
+  function issuingPerson(values, template, config) {
+    return findPerson(config, values && values.issuingOfficial)
+      || findPerson(config, template && template.defaultOfficial)
+      || findPerson(config, ((config && config.issuingOfficialIds) || [])[0]);
+  }
+
+  function mergeEmail(values, template, config) {
+    if (String((values && values.toEmail) || "").trim()) return "";
+    const person = issuingPerson(values, template, config);
+    return person && person.email ? String(person.email).trim() : "";
+  }
+
+  function templateForRecord(record) {
+    let live = null;
+    const home = state.offices.find(function (item) { return item.id === record.officeId; });
+    const active = office();
+    const pools = [];
+    if (home) pools.push(home);
+    if (active && active !== home) pools.push(active);
+    state.offices.forEach(function (item) {
+      if (pools.indexOf(item) === -1) pools.push(item);
+    });
+    for (let index = 0; index < pools.length && !live; index += 1) {
+      live = (pools[index].templates || []).find(function (item) { return item.id === record.templateId; }) || null;
+    }
+    if (!live) return null;
+    if (record.templateVersion && record.templateVersion !== live.version) {
+      const archived = (live.versions || []).find(function (entry) {
+        return entry.version === record.templateVersion && entry.snapshot;
+      });
+      if (!archived) return live;
+      return Object.assign({}, live, archived.snapshot, { id: live.id, version: archived.version });
+    }
+    return live;
+  }
+
+  function csvColumns(rows) {
+    const present = new Set();
+    rows.forEach(function (row) {
+      Object.keys(row).forEach(function (key) { present.add(key); });
+    });
+    const preferred = ["documentId", "email", "subject", "recipients", "cc", "issuingOfficial", "issuingTitle", "memoDate", "officeName", "region", "airportName"];
+    const columns = preferred.filter(function (key) { return present.has(key); });
+    const middle = [];
+    present.forEach(function (key) {
+      if (key !== "body" && preferred.indexOf(key) === -1) middle.push(key);
+    });
+    middle.sort();
+    if (present.has("body")) middle.push("body");
+    return columns.concat(middle);
+  }
+
   MB.store = {
     state: state,
     office: office,
@@ -375,6 +434,64 @@
       const name = kind === "docx" ? doc.filenameDocx : doc.filenamePdf;
       const type = kind === "docx" ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document" : "application/pdf";
       MB.downloadBlob(name || documentId + "." + kind, new Blob([bytes], { type: type }));
+    },
+    exportCsv: function (documentIds) {
+      const ids = Array.isArray(documentIds) ? documentIds : [];
+      const current = office();
+      if (!current) {
+        state.notice = { tone: "danger", text: "No office is loaded." };
+        emit();
+        return "";
+      }
+      const rows = [];
+      let skipped = 0;
+      ids.forEach(function (documentId) {
+        const record = state.documents.find(function (doc) { return doc.documentId === documentId; });
+        if (!record) {
+          skipped += 1;
+          return;
+        }
+        const template = templateForRecord(record);
+        if (!template) {
+          skipped += 1;
+          return;
+        }
+        const values = record.fieldValues || {};
+        const memo = MB.resolveMemorandum({
+          template: template,
+          config: current.config,
+          values: values,
+          documentId: record.documentId,
+          brandingVersion: record.brandingVersion,
+        });
+        const map = MB.tokenMapForPackage(memo, template, values, current.config);
+        const row = {};
+        Object.keys(map).forEach(function (key) {
+          row[String(key).replaceAll(".", "_")] = map[key] == null ? "" : String(map[key]);
+        });
+        row.documentId = record.documentId;
+        row.templateName = memo.templateName || record.templateName || "";
+        row.generatedAt = record.generatedAt || "";
+        row.email = mergeEmail(values, template, current.config);
+        rows.push(row);
+      });
+      if (!rows.length) {
+        state.notice = { tone: "warning", text: skipped ? "No memorandums could be exported." : "Nothing to export." };
+        emit();
+        return "";
+      }
+      const csv = MB.toCsv(rows, csvColumns(rows));
+      const filename = "memorandum-merge-" + MB.todayIso() + ".csv";
+      MB.downloadBlob(filename, new Blob([csv], { type: "text/csv;charset=utf-8" }));
+      const noun = rows.length === 1 ? "memorandum" : "memorandums";
+      state.notice = {
+        tone: skipped ? "warning" : "success",
+        text: skipped
+          ? "Exported " + rows.length + " " + noun + ". " + skipped + " could not be rebuilt."
+          : "Exported " + rows.length + " " + noun + " to " + filename + ".",
+      };
+      emit();
+      return csv;
     },
     setDocumentStatus: function (documentId, status) {
       state.documents = state.documents.map(function (doc) {
